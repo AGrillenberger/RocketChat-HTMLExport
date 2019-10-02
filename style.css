@@ -1,0 +1,45 @@
+body {
+    font-family: sans-serif;
+    background-color: #205070;
+}
+
+div.main {
+    background-color: white;
+    margin: 2em;
+    padding: 1em;
+}
+
+h1 {
+    padding: 0;
+    margin: 0;
+}
+
+a {
+    color: #205070;
+}
+
+a:hover {
+    color: #000099;
+}
+
+div.msg {
+    margin-top: 1em;
+}
+
+div.msg p {
+    margin-block-start: .2em;
+    margin-block-end: 0;
+}
+
+div.msg span.from {
+    font-weight: bold;
+}
+
+div.msg span.ts {
+    font-size: 80%;
+}
+
+div.msg p.content {
+    padding-left: .5em;
+    border-left: 3px solid #205070;
+}
