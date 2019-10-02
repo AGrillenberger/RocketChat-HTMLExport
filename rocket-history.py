@@ -2,14 +2,16 @@ import json
 import os
 import requests
 import shutil
+import getpass
 from requests import sessions
 from pprint import pprint
 from rocketchat_API.rocketchat import RocketChat
 import datetime
 
-user = os.getenv("rc_user")
-password = os.getenv("rc_pass")
-server = os.getenv("rc_server")
+server = input("RocketChat server (full address, e. g. https://my.chat.server): ")
+user = input("username: ")
+password = getpass.getpass("password: ")
+
 
 with sessions.Session() as session:
     rocket = RocketChat(user, password, server_url=server, session=session)
