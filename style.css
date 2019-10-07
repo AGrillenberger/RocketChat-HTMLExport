@@ -43,3 +43,7 @@ div.msg p.content {
     padding-left: .5em;
     border-left: 3px solid #205070;
 }
+
+div.msg img {
+    max-height: 300px;
+}

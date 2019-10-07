@@ -7,6 +7,9 @@ from requests import sessions
 from pprint import pprint
 from rocketchat_API.rocketchat import RocketChat
 import datetime
+import re
+import sys
+import subprocess
 
 server = input("RocketChat server (full address, e. g. https://my.chat.server): ")
 user = input("username: ")
@@ -19,10 +22,23 @@ with sessions.Session() as session:
 index = ""
 
 def main():
+    askDelete = False
     try: 
         os.mkdir("out")
-    except FileExistsError as error: 
-        pass    
+    except FileExistsError: 
+        askDelete = True
+    
+    while askDelete:
+        answer = input("'out' directory already exists - delete contents [y/n]? ")
+        if answer == "y":
+            try:
+                shutil.rmtree("out/", ignore_errors=True)
+                os.mkdir("out")
+            except Error:
+                pass
+            break
+        elif answer == "n":
+            break
     
     getChannels()
     getPrivChannels()
@@ -33,6 +49,22 @@ def main():
     f.close()
 
     shutil.copyfile("style.css", "out/style.css")
+
+    print("")
+    print("### FINISHED ###")
+    print("The export files are stored in ./out --> " + os.getcwd() + "/out/index.html")
+
+    url = "file://" + os.getcwd() + "/out/index.html"
+
+    if sys.platform=='win32':
+        os.startfile(url)
+    elif sys.platform=='darwin':
+        subprocess.Popen(['open', url])
+    else:
+        try:
+            subprocess.Popen(['xdg-open', url])
+        except OSError:
+            pass
 
 def getChannels():
     ch = rocket.channels_list_joined().json()
@@ -122,24 +154,18 @@ def getHistForIM(chan):
     return res
 
 def downloadFile(uri):
-    #urllib.request.urlretrieve(server + uri, 'out/file.png')
-    #print(rocket.headers["X-Auth-Token"])
-
     r = requests.get(server + uri, headers=rocket.headers)
+    split = re.sub("[^A-Za-z0-9_\-\.\/]+", "", uri).split("/")
+    
+    path = "out/"
+    for i in range(1, len(split)-1):
+        path = path + split[i] + "/"
+        try: 
+            os.mkdir(path)
+        except FileExistsError: 
+            pass
 
-    split = uri.split("/")
-
-    try: 
-        os.mkdir("out/" + split[1])
-    except FileExistsError: 
-        pass
-
-    try: 
-        os.mkdir("out/" + split[1] + "/" + split[2])
-    except FileExistsError: 
-        pass
-
-    with open("out/" + split[1] + "/" + split[2] + "/" + split[3], "wb") as f:
+    with open(path + split[len(split) - 1], "wb") as f:
         f.write(r.content)
     pass
 
@@ -150,11 +176,15 @@ def toHTML(id, title, msgs):
     for m in reversed(msgs):
         html += "<div class='msg'><p><span class='from'>" + m["author"] + "</span> <span class='ts'>(" +  m["ts"] + ")</span></p><p class='content'>" + m["msg"]
         if "img" in m:
-            html += "<img src='" + m["img"][1:] + "' />"
+            html += "<a href='" + re.sub("[^A-Za-z0-9_\-\.\/]+", "", m["img"][1:]) + "'><img src='" + re.sub("[^A-Za-z0-9_\-\.\/]+", "", m["img"][1:]) + "' /></a>"
         if "file" in m:
-            html += "<a href='" + m["file"][1:] + "'>" + m["file"][1:] + "</a>"
+            if m["file"][-3:] == "jpg" or m["file"][-3:] == "png":
+                html += "<a href='" + re.sub("[^A-Za-z0-9_\-\.\/]+", "", m["file"][1:]) + "'><img src='" + re.sub("[^A-Za-z0-9_\-\.\/]+", "", m["file"][1:]) + "' /></a>"
+            else:
+                html += "<a href='" + re.sub("[^A-Za-z0-9_\-\.\/]+", "", m["file"][1:]) + "'>" + re.sub("[^A-Za-z0-9_\-\.\/]+", "", m["file"][1:]) + "</a>"
         html += "</p></div>"
     
+    html += "<p><a href='index.html'>&larr; zur&uuml;ck</a></p>"
     html += "</div></body></html>"
 
     f = open("out/chat_" + id + ".html", "w+")
