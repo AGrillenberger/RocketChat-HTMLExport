@@ -50,7 +50,7 @@ def main():
     f.write("<html><head><meta charset='utf-8'><title>RocketChat-Export</title><link rel='stylesheet' type='text/css' href='style.css' media='screen' /></head><body><div class='main'><h1>RocketChat-Export</h1><ul>" + index + "</ul></div></body></html>")
     f.close()
 
-    shutil.copyfile("style.css", "out/style.css")
+    shutil.copyfile("res/style.css", "out/style.css")
 
     print("")
     print("### FINISHED ###")
