@@ -23,11 +23,11 @@ index = ""
 
 def main():
     askDelete = False
-    try: 
+    try:
         os.mkdir("out")
-    except FileExistsError: 
+    except FileExistsError:
         askDelete = True
-    
+
     while askDelete:
         answer = input("'out' directory already exists - delete contents [y/n]? ")
         if answer == "y":
@@ -39,7 +39,7 @@ def main():
             break
         elif answer == "n":
             break
-    
+
     getChannels()
     getPrivChannels()
     getIMs()
@@ -70,12 +70,13 @@ def getChannels():
     ch = rocket.channels_list_joined().json()
 
     for it in ch["channels"]:
+        it["name"] = str(it["name"].encode("utf-8"))
         print("Channel " + it["name"])
         toHTML(it["_id"], "Kanal " + it["name"], getHistForChannel(it["_id"]))
 
 def getHistForChannel(chan):
     res = []
-    
+
     for m in rocket.channels_history(chan,count=1000000000).json()["messages"]:
         msg = {
             "author": m["u"]["username"],
@@ -99,12 +100,13 @@ def getPrivChannels():
     ch = rocket.groups_list().json()
 
     for it in ch["groups"]:
+        it["name"] = str(it["name"].encode("utf-8"))
         print("Group " + it["name"])
         toHTML(it["_id"], "Privater Kanal " + it["name"], getHistForPrivChannel(it["_id"]))
 
 def getHistForPrivChannel(chan):
     res = []
-    
+
     for m in rocket.groups_history(chan,count=1000000000).json()["messages"]:
         msg = {
             "author": m["u"]["username"],
@@ -121,19 +123,20 @@ def getHistForPrivChannel(chan):
                 downloadFile(m["attachments"][0]["title_link"])
 
         res.append(msg)
-    
+
     return res
 
 def getIMs():
     ch = rocket.im_list().json()
 
     for it in ch["ims"]:
+        it["name"] = str(it["name"].encode("utf-8"))
         print("PrivMsg " + it["usernames"][0] + " / " + it["usernames"][1])
         toHTML(it["_id"], "Privatnachrichten " + it["usernames"][0] + " &lrarr; " + it["usernames"][1], getHistForIM(it["_id"]))
 
 def getHistForIM(chan):
     res = []
-    
+
     for m in rocket.im_history(chan,count=1000000000).json()["messages"]:
         msg = {
             "author": m["u"]["username"],
@@ -150,19 +153,19 @@ def getHistForIM(chan):
                 downloadFile(m["attachments"][0]["title_link"])
 
         res.append(msg)
-    
+
     return res
 
 def downloadFile(uri):
     r = requests.get(server + uri, headers=rocket.headers)
     split = re.sub("[^A-Za-z0-9_\-\.\/]+", "", uri).split("/")
-    
+
     path = "out/"
     for i in range(1, len(split)-1):
         path = path + split[i] + "/"
-        try: 
+        try:
             os.mkdir(path)
-        except FileExistsError: 
+        except FileExistsError:
             pass
 
     with open(path + split[len(split) - 1], "wb") as f:
@@ -183,12 +186,12 @@ def toHTML(id, title, msgs):
             else:
                 html += "<a href='" + re.sub("[^A-Za-z0-9_\-\.\/]+", "", m["file"][1:]) + "'>" + re.sub("[^A-Za-z0-9_\-\.\/]+", "", m["file"][1:]) + "</a>"
         html += "</p></div>"
-    
+
     html += "<p><a href='index.html'>&larr; zur&uuml;ck</a></p>"
     html += "</div></body></html>"
 
     f = open("out/chat_" + id + ".html", "w+")
-    f.write(html)
+    f.write(str(html.encode("utf-8")))
     f.close()
 
     global index
