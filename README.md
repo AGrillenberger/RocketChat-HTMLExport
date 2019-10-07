@@ -5,7 +5,7 @@ Python script for exporting RocketChat messages and files
 ```
 pip install -r requirements.txt
 ```
-(of course, first [install PIP](https://pip.pypa.io/en/stable/installing/)
+(of course, first [install PIP](https://pip.pypa.io/en/stable/installing/))
 
 ## Run
 ```
