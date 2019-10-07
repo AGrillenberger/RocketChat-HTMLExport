@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import json
 import os
 import requests
@@ -44,7 +46,7 @@ def main():
     getPrivChannels()
     getIMs()
 
-    f = open("out/index.html", "w+")
+    f = open("out/index.html", "w+", encoding="utf-8")
     f.write("<html><head><meta charset='utf-8'><title>RocketChat-Export</title><link rel='stylesheet' type='text/css' href='style.css' media='screen' /></head><body><div class='main'><h1>RocketChat-Export</h1><ul>" + index + "</ul></div></body></html>")
     f.close()
 
@@ -70,7 +72,6 @@ def getChannels():
     ch = rocket.channels_list_joined().json()
 
     for it in ch["channels"]:
-        it["name"] = str(it["name"].encode("utf-8"))
         print("Channel " + it["name"])
         toHTML(it["_id"], "Kanal " + it["name"], getHistForChannel(it["_id"]))
 
@@ -100,7 +101,6 @@ def getPrivChannels():
     ch = rocket.groups_list().json()
 
     for it in ch["groups"]:
-        it["name"] = str(it["name"].encode("utf-8"))
         print("Group " + it["name"])
         toHTML(it["_id"], "Privater Kanal " + it["name"], getHistForPrivChannel(it["_id"]))
 
@@ -130,7 +130,6 @@ def getIMs():
     ch = rocket.im_list().json()
 
     for it in ch["ims"]:
-        it["name"] = str(it["name"].encode("utf-8"))
         print("PrivMsg " + it["usernames"][0] + " / " + it["usernames"][1])
         toHTML(it["_id"], "Privatnachrichten " + it["usernames"][0] + " &lrarr; " + it["usernames"][1], getHistForIM(it["_id"]))
 
@@ -190,8 +189,8 @@ def toHTML(id, title, msgs):
     html += "<p><a href='index.html'>&larr; zur&uuml;ck</a></p>"
     html += "</div></body></html>"
 
-    f = open("out/chat_" + id + ".html", "w+")
-    f.write(str(html.encode("utf-8")))
+    f = open("out/chat_" + id + ".html", "w+", encoding="utf-8")
+    f.write(html)
     f.close()
 
     global index
