@@ -172,11 +172,13 @@ def downloadFile(uri):
     except FileExistsError:
         pass
 
-    with open(path + split[len(split) - 1], "wb") as f:
+    fn = split[len(split) - 1]
+    fp = path + md5(fn[:-4].encode("utf-8")).hexdigest() + fn[-4:]
+    with open(fp, "wb") as f:
         f.write(r.content)
     pass
 
-    return path[4:] + split[len(split) - 1]
+    return fp[4:]
 
 def toHTML(id, title, msgs):
     html = "<html><head><meta charset='utf-8'><title>" + title + "</title><link rel='stylesheet' type='text/css' href='style.css' media='screen' /></head><body><div class='main'>"
