@@ -12,6 +12,7 @@ import datetime
 import re
 import sys
 import subprocess
+from hashlib import md5
 
 server = input("RocketChat server (full address, e. g. https://my.chat.server): ")
 user = input("username: ")
@@ -87,11 +88,9 @@ def getHistForChannel(chan):
 
         if "attachments" in m and m["attachments"] != None and len(m["attachments"]) > 0:
             if "image_url" in m["attachments"][0]:
-                msg["img"] = m["attachments"][0]["image_url"]
-                downloadFile(m["attachments"][0]["image_url"])
+                msg["img"] = downloadFile(m["attachments"][0]["image_url"])
             elif "title_link" in m["attachments"][0]:
-                msg["file"] = m["attachments"][0]["title_link"]
-                downloadFile(m["attachments"][0]["title_link"])
+                msg["file"] = downloadFile(m["attachments"][0]["title_link"])
 
         res.append(msg)
 
@@ -116,11 +115,9 @@ def getHistForPrivChannel(chan):
 
         if "attachments" in m and m["attachments"] != None and len(m["attachments"]) > 0:
             if "image_url" in m["attachments"]:
-                msg["img"] = m["attachments"][0]["image_url"]
-                downloadFile(m["attachments"][0]["image_url"])
+                msg["img"] = downloadFile(m["attachments"][0]["image_url"])
             elif "title_link" in m["attachments"][0]:
-                msg["file"] = m["attachments"][0]["title_link"]
-                downloadFile(m["attachments"][0]["title_link"])
+                msg["file"] = downloadFile(m["attachments"][0]["title_link"])
 
         res.append(msg)
 
@@ -145,11 +142,9 @@ def getHistForIM(chan):
 
         if "attachments" in m and m["attachments"] != None and len(m["attachments"]) > 0:
             if "image_url" in m["attachments"]:
-                msg["img"] = m["attachments"][0]["image_url"]
-                downloadFile(m["attachments"][0]["image_url"])
+                msg["img"] = downloadFile(m["attachments"][0]["image_url"])
             elif "title_link" in m["attachments"][0]:
-                msg["file"] = m["attachments"][0]["title_link"]
-                downloadFile(m["attachments"][0]["title_link"])
+                msg["file"] = downloadFile(m["attachments"][0]["title_link"])
 
         res.append(msg)
 
@@ -157,19 +152,31 @@ def getHistForIM(chan):
 
 def downloadFile(uri):
     r = requests.get(server + uri, headers=rocket.headers)
-    split = re.sub("[^A-Za-z0-9_\-\.\/]+", "", uri).split("/")
+    split = re.sub("[^A-Za-z0-9_\-\.\/]+", "", uri)
+    split = re.sub("\/\/", "/", split).split("/")
 
     path = "out/"
-    for i in range(1, len(split)-1):
+    for i in range(1, 2):
         path = path + split[i] + "/"
         try:
             os.mkdir(path)
         except FileExistsError:
             pass
 
+    path2 = ""
+    for i in range(2, len(split) - 1):
+        path2 = path2 + split[i]
+    path = path + md5(path2.encode("utf-8")).hexdigest() + "/"
+    try:
+        os.mkdir(path)
+    except FileExistsError:
+        pass
+
     with open(path + split[len(split) - 1], "wb") as f:
         f.write(r.content)
     pass
+
+    return path[4:] + split[len(split) - 1]
 
 def toHTML(id, title, msgs):
     html = "<html><head><meta charset='utf-8'><title>" + title + "</title><link rel='stylesheet' type='text/css' href='style.css' media='screen' /></head><body><div class='main'>"
@@ -178,12 +185,12 @@ def toHTML(id, title, msgs):
     for m in reversed(msgs):
         html += "<div class='msg'><p><span class='from'>" + m["author"] + "</span> <span class='ts'>(" +  m["ts"] + ")</span></p><p class='content'>" + m["msg"]
         if "img" in m:
-            html += "<a href='" + re.sub("[^A-Za-z0-9_\-\.\/]+", "", m["img"][1:]) + "'><img src='" + re.sub("[^A-Za-z0-9_\-\.\/]+", "", m["img"][1:]) + "' /></a>"
+            html += "<a href='" + re.sub("[^A-Za-z0-9_\-\.\/]+", "", m["img"]) + "'><img src='" + re.sub("[^A-Za-z0-9_\-\.\/]+", "", m["img"]) + "' /></a>"
         if "file" in m:
             if m["file"][-3:] == "jpg" or m["file"][-3:] == "png":
-                html += "<a href='" + re.sub("[^A-Za-z0-9_\-\.\/]+", "", m["file"][1:]) + "'><img src='" + re.sub("[^A-Za-z0-9_\-\.\/]+", "", m["file"][1:]) + "' /></a>"
+                html += "<a href='" + re.sub("[^A-Za-z0-9_\-\.\/]+", "", m["file"]) + "'><img src='" + re.sub("[^A-Za-z0-9_\-\.\/]+", "", m["file"]) + "' /></a>"
             else:
-                html += "<a href='" + re.sub("[^A-Za-z0-9_\-\.\/]+", "", m["file"][1:]) + "'>" + re.sub("[^A-Za-z0-9_\-\.\/]+", "", m["file"][1:]) + "</a>"
+                html += "<a href='" + re.sub("[^A-Za-z0-9_\-\.\/]+", "", m["file"]) + "'>" + re.sub("[^A-Za-z0-9_\-\.\/]+", "", m["file"]) + "</a>"
         html += "</p></div>"
 
     html += "<p><a href='index.html'>&larr; zur&uuml;ck</a></p>"
