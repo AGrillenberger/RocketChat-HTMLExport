@@ -9,11 +9,11 @@ Alternatively, Windows users can of course also use the method described below f
 ## MacOS and Linux
 This method requires Python3 and [PIP](https://pip.pypa.io/en/stable/installing/) installed. If this is the case, just the requirements for the script have to be installed and the script can be executed.
 
-## Install dependencies
+### Install dependencies
 ```
 pip install -r requirements.txt
 ```
 
-## Run
+### Run
 ```
 python3 rocket-history.py
