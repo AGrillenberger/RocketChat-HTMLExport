@@ -14,9 +14,21 @@ import sys
 import subprocess
 from hashlib import md5
 
-server = input("RocketChat server (full address, e. g. https://my.chat.server): ")
-user = input("username: ")
-password = getpass.getpass("password: ")
+if "RC_SERVER" in os.environ:
+    server = os.environ["RC_SERVER"]
+else:
+    server = input("RocketChat server (full address, e. g. https://my.chat.server): ")
+
+
+if "RC_USER" in os.environ:
+    user = os.environ["RC_USER"]
+else:
+    user = input("username: ")
+
+if "RC_PW" in os.environ:
+    password = os.environ["RC_PW"]
+else:
+    password = getpass.getpass("password: ")
 
 
 with sessions.Session() as session:
@@ -79,7 +91,12 @@ def getChannels():
 def getHistForChannel(chan):
     res = []
 
-    for m in rocket.channels_history(chan,count=1000000000).json()["messages"]:
+    hist = rocket.channels_history(chan,count=1000000000).json()
+    if(not hist["success"]):
+        print("... failed: " + hist["error"])
+        return res
+
+    for m in hist["messages"]:
         msg = {
             "author": m["u"]["username"],
             "msg": m["msg"],
@@ -106,7 +123,12 @@ def getPrivChannels():
 def getHistForPrivChannel(chan):
     res = []
 
-    for m in rocket.groups_history(chan,count=1000000000).json()["messages"]:
+    hist = rocket.groups_history(chan,count=1000000000).json()
+    if(not hist["success"]):
+        print("... failed: " + hist["error"])
+        return res
+
+    for m in hist["messages"]:
         msg = {
             "author": m["u"]["username"],
             "msg": m["msg"],
@@ -133,7 +155,12 @@ def getIMs():
 def getHistForIM(chan):
     res = []
 
-    for m in rocket.im_history(chan,count=1000000000).json()["messages"]:
+    hist = rocket.im_history(chan,count=1000000000).json()
+    if(not hist["success"]):
+        print("... failed: " + hist["error"])
+        return res
+
+    for m in hist["messages"]:
         msg = {
             "author": m["u"]["username"],
             "msg": m["msg"],
