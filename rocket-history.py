@@ -13,6 +13,7 @@ import re
 import sys
 import subprocess
 from hashlib import md5
+import time
 
 if "RC_SERVER" in os.environ:
     server = os.environ["RC_SERVER"]
@@ -124,8 +125,15 @@ def getHistForPrivChannel(chan):
     res = []
 
     hist = rocket.groups_history(chan,count=1000000000).json()
-    if(not hist["success"]):
-        print("... failed: " + hist["error"])
+    if not hist["success"]:
+        if hist["error"].startswith("Error, too many requests"):
+            m = re.search('([0-9]+) seconds', hist["error"])
+            print("...waiting for " + m.group(0) + " seconds because of rate limits...")
+            time.sleep(30)
+            print("...continuing...")
+            return getHistForPrivChannel(chan)
+        else:
+            print("...failed: " + hist["error"])
         return res
 
     for m in hist["messages"]:
