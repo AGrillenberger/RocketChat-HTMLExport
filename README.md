@@ -2,7 +2,7 @@
 Python script for exporting RocketChat messages and files
 
 ## Windows
-A binary for Windows users [is available](https://github.com/AGrillenberger/RocketChat-HTMLExport/releases/download/v1-win32/rocket-history.zip) - just download it, unpack it and run ```rocket-history.exe```
+A binary for Windows users [is available](https://github.com/AGrillenberger/RocketChat-HTMLExport/releases/download/v1.1/rocket-history.zip) - just download it, unpack it and run ```rocket-history.exe```
 
 Alternatively, Windows users can of course also use the method described below for Linux and MacOS if they have python installed.
 
