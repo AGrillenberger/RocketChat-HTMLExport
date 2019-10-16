@@ -99,7 +99,7 @@ def getHistForChannel(chan):
             print("...waiting for " + m.group(0) + " seconds because of rate limits...")
             time.sleep(30)
             print("...continuing...")
-            return getHistForPrivChannel(chan)
+            return getHistForChannel(chan)
         else:
             print("...failed: " + hist["error"])
         return res
@@ -177,7 +177,7 @@ def getHistForIM(chan):
             print("...waiting for " + m.group(0) + " seconds because of rate limits...")
             time.sleep(30)
             print("...continuing...")
-            return getHistForPrivChannel(chan)
+            return getHistForIM(chan)
         else:
             print("...failed: " + hist["error"])
         return res
